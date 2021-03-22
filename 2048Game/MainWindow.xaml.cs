@@ -42,7 +42,7 @@ namespace _2048Game
         readonly SolidColorBrush HighValueColor = new SolidColorBrush(Color.FromRgb(249, 246, 242));
         const int CellsCount = 4;
 
-
+        bool LockKeyPress = false;
 
         public SolidColorBrush GetColor(uint value)
         {
@@ -137,6 +137,8 @@ namespace _2048Game
         Cell[,] Cells = new Cell[CellsCount, CellsCount];
 
         bool Moved = false;
+        int FilledCells = 0;
+        int AnimatedCells = 0;
 
         public void Move(int x, int y, Direction dir)
         {
@@ -291,21 +293,25 @@ namespace _2048Game
                 viewBox.SetValue(TopProperty, newY);
 
                 if (itteration >= itterations)
-                {
+                {                   
                     Playground.Children.Remove(cellFill);
                     Playground.Children.Remove(viewBox);
                     timer.Stop();
                     UpdateGrid();
+                    if(AnimatedCells >= FilledCells)
+                    {
+                        LockKeyPress = false;
+                    }
                 }
 
                 itteration++;
             };            
 
-            if(Cells[(int)EndPos.X, (int)EndPos.Y].Value!=0)
+            if(val!=0)
             {
+                AnimatedCells++;
                 Playground.Children.Add(cellFill);
-                Playground.Children.Add(viewBox);
-                //Console.WriteLine(cellFill.Fill);
+                Playground.Children.Add(viewBox);                
                 timer.Start();
                 Cells[(int)StartPos.X, (int)StartPos.Y].Fill.Fill = ForeColor;
                 ((Label)Cells[(int)StartPos.X, (int)StartPos.Y].Content.Child).Content = "";
@@ -458,55 +464,92 @@ namespace _2048Game
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Right)
-            {                
-                for (int x = CellsCount - 1; x >= 0; x--)
-                {
-                    for (int y = 0; y < CellsCount; y++)
-                    {
-                        var cell = Cells[x, y];
-                        Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Right);
-                    }
-                }
-            }
-            if (e.Key == Key.Left)
-            {               
-                for (int x = 0; x < CellsCount; x++)
-                {
-                    for (int y = 0; y < CellsCount; y++)
-                    {
-                        var cell = Cells[x, y];
-                        Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Left);
-                    }
-                }
-            }
-            if (e.Key == Key.Up)
-            {                
-                for (int x = 0; x < CellsCount; x++)
-                {
-                    for (int y = 0; y < CellsCount; y++)
-                    {
-                        var cell = Cells[x, y];
-                        Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Up);
-                    }
-                }
-            }
-            if (e.Key == Key.Down)
-            {               
-                for (int x = 0; x < CellsCount; x++)
-                {
-                    for (int y = CellsCount - 1; y >= 0; y--)
-                    {
-                        var cell = Cells[x, y];
-                        Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Down);
-                    }
-                }
-            }
-            if (Moved)
+            if(!LockKeyPress)
             {
-                CreateRandomCell();
-                Moved = false;
-            }
+                AnimatedCells = 0;
+                FilledCells = 0;                
+                if (e.Key == Key.Right)
+                {
+                    LockKeyPress = true;
+                    foreach (var cell in Cells)
+                    {
+                        if (cell.Value != 0&&cell.Position.X<CellsCount-1)
+                        {
+                            FilledCells += 1;
+                        }
+                    }
+                    for (int x = CellsCount - 1; x >= 0; x--)
+                    {
+                        for (int y = 0; y < CellsCount; y++)
+                        {
+                            var cell = Cells[x, y];
+                            Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Right);
+                        }
+                    }
+                }
+                if (e.Key == Key.Left)
+                {
+                    foreach (var cell in Cells)
+                    {
+                        if (cell.Value != 0 && cell.Position.X >0)
+                        {
+                            FilledCells += 1;
+                        }
+                    }
+                    LockKeyPress = true;
+                    for (int x = 0; x < CellsCount; x++)
+                    {
+                        for (int y = 0; y < CellsCount; y++)
+                        {
+                            var cell = Cells[x, y];
+                            Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Left);
+                        }
+                    }
+                }
+                if (e.Key == Key.Up)
+                {
+                    foreach (var cell in Cells)
+                    {
+                        if (cell.Value != 0 && cell.Position.Y > 0)
+                        {
+                            FilledCells += 1;
+                        }
+                    }
+                    LockKeyPress = true;
+                    for (int x = 0; x < CellsCount; x++)
+                    {
+                        for (int y = 0; y < CellsCount; y++)
+                        {
+                            var cell = Cells[x, y];
+                            Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Up);
+                        }
+                    }
+                }
+                if (e.Key == Key.Down)
+                {
+                    foreach (var cell in Cells)
+                    {
+                        if (cell.Value != 0 && cell.Position.Y<CellsCount-1)
+                        {
+                            FilledCells += 1;
+                        }
+                    }
+                    LockKeyPress = true;
+                    for (int x = 0; x < CellsCount; x++)
+                    {
+                        for (int y = CellsCount - 1; y >= 0; y--)
+                        {
+                            var cell = Cells[x, y];
+                            Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Down);
+                        }
+                    }
+                }
+                if (Moved)
+                {
+                    CreateRandomCell();
+                    Moved = false;
+                }
+            }            
         }
     }
 }
