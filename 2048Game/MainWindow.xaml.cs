@@ -252,7 +252,7 @@ namespace _2048Game
             var y2 = EndPos.Y * cellWidth + BlockMargin * (EndPos.Y + 1);
 
             var itteration = 0;
-            var itterations = 12;
+            var itterations = 8;
 
             var cellFill = new Rectangle();
 
