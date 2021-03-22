@@ -250,7 +250,7 @@ namespace _2048Game
             var y2 = EndPos.Y * cellWidth + BlockMargin * (EndPos.Y + 1);
 
             var itteration = 0;
-            var itterations = 8;
+            var itterations = 12;
 
             var cellFill = new Rectangle();
 
@@ -305,8 +305,10 @@ namespace _2048Game
             {
                 Playground.Children.Add(cellFill);
                 Playground.Children.Add(viewBox);
-                Console.WriteLine(cellFill.Fill);
-                timer.Start();               
+                //Console.WriteLine(cellFill.Fill);
+                timer.Start();
+                Cells[(int)StartPos.X, (int)StartPos.Y].Fill.Fill = ForeColor;
+                ((Label)Cells[(int)StartPos.X, (int)StartPos.Y].Content.Child).Content = "";
             }            
         }
 
