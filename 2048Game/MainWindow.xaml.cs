@@ -143,6 +143,7 @@ namespace _2048Game
             Point StartPos = new Point(x, y);
             Point EndPos = new Point(x, y);
             var val = Cells[x, y].Value;
+            var color = Cells[x, y].Fill.Fill;
             int xOffset = 0;
             int yOffset = 0;
             if (dir == Direction.Left)
@@ -249,17 +250,17 @@ namespace _2048Game
             var y2 = EndPos.Y * cellWidth + BlockMargin * (EndPos.Y + 1);
 
             var itteration = 0;
-            var itterations = 10;
+            var itterations = 8;
 
             var cellFill = new Rectangle();
 
-            cellFill.Fill = Cells[(int)StartPos.X, (int)StartPos.Y].Fill.Fill;
+            cellFill.Fill = color;
 
             cellFill.Width = cellWidth;
             cellFill.Height = cellHeight;
 
-            cellFill.SetValue(LeftProperty, x1 * cellWidth + BlockMargin * (x + 1));
-            cellFill.SetValue(TopProperty, y1 * cellHeight + BlockMargin * (y + 1));
+            cellFill.SetValue(LeftProperty, (x2 - x1) * itteration / (double)itterations + x1);
+            cellFill.SetValue(TopProperty, (y2 - y1) * itteration / (double)itterations + y1);
 
             cellFill.RadiusX = BorderRadius;
             cellFill.RadiusY = BorderRadius;                       
@@ -276,8 +277,8 @@ namespace _2048Game
             viewBox.Width = cellWidth;
             viewBox.Height = cellHeight;
 
-            viewBox.SetValue(LeftProperty, x1 * cellWidth + BlockMargin * (x + 1));
-            viewBox.SetValue(TopProperty, y1 * cellHeight + BlockMargin * (y + 1));
+            viewBox.SetValue(LeftProperty, (x2 - x1) * itteration / (double)itterations + x1);
+            viewBox.SetValue(TopProperty, (y2 - y1) * itteration / (double)itterations + y1);
 
             timer.Tick += (object sender, EventArgs e) =>
             {
