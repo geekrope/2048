@@ -41,6 +41,8 @@ namespace _2048Game
         readonly SolidColorBrush HighValueColor = new SolidColorBrush(Color.FromRgb(249, 246, 242));
         const int CellsCount = 4;
 
+
+
         public SolidColorBrush GetColor(uint value)
         {
             if(value == 0)
@@ -129,7 +131,7 @@ namespace _2048Game
         Cell[,] Cells = new Cell[CellsCount, CellsCount];
 
         public void MoveLeft(int x, int y)
-        {
+        {            
             var cell = Cells[x, y];
             if (x == 0)
             {
@@ -139,7 +141,7 @@ namespace _2048Game
             {
                 var value = Cells[x, y].Value;
                 Cells[x, y].Value = 0;
-                Cells[x - 1, y].Value = value * 2;
+                Cells[x - 1, y].Value = value * 2;               
             }
             else
             {
@@ -150,7 +152,7 @@ namespace _2048Game
                         var value = Cells[x, y].Value;
                         Cells[x, y].Value = 0;
                         Cells[x - 1, y].Value = value;
-                        x--;
+                        x--;                        
                     }
                     else
                     {
@@ -158,16 +160,16 @@ namespace _2048Game
                         {
                             var value = Cells[x, y].Value;
                             Cells[x, y].Value = 0;
-                            Cells[x - 1, y].Value = value * 2;
+                            Cells[x - 1, y].Value = value * 2;                            
                         }
                         break;
                     }
                 }
-            }
+            }           
         }
 
         public void MoveRight(int x, int y)
-        {
+        {            
             var cell = Cells[x, y];
             if (x == CellsCount - 1)
             {
@@ -177,7 +179,7 @@ namespace _2048Game
             {
                 var value = Cells[x, y].Value;
                 Cells[x, y].Value = 0;
-                Cells[x + 1, y].Value = value * 2;
+                Cells[x + 1, y].Value = value * 2;               
             }
             else
             {
@@ -188,7 +190,7 @@ namespace _2048Game
                         var value = Cells[x, y].Value;
                         Cells[x, y].Value = 0;
                         Cells[x + 1, y].Value = value;
-                        x++;
+                        x++;                       
                     }
                     else
                     {
@@ -196,16 +198,16 @@ namespace _2048Game
                         {
                             var value = Cells[x, y].Value;
                             Cells[x, y].Value = 0;
-                            Cells[x + 1, y].Value = value * 2;
+                            Cells[x + 1, y].Value = value * 2;                            
                         }
                         break;
                     }
                 }
-            }
+            }            
         }
 
         public void MoveUp(int x, int y)
-        {
+        {           
             var cell = Cells[x, y];
             if (y == 0)
             {
@@ -215,7 +217,7 @@ namespace _2048Game
             {
                 var value = Cells[x, y].Value;
                 Cells[x, y].Value = 0;
-                Cells[x, y - 1].Value = value * 2;
+                Cells[x, y - 1].Value = value * 2;               
             }
             else
             {
@@ -226,7 +228,7 @@ namespace _2048Game
                         var value = Cells[x, y].Value;
                         Cells[x, y].Value = 0;
                         Cells[x, y - 1].Value = value;
-                        y--;
+                        y--;                        
                     }
                     else
                     {
@@ -234,16 +236,17 @@ namespace _2048Game
                         {
                             var value = Cells[x, y].Value;
                             Cells[x, y].Value = 0;
-                            Cells[x, y - 1].Value = value * 2;
+                            Cells[x, y - 1].Value = value * 2;                            
                         }
                         break;
                     }
                 }
-            }
+            }            
         }
 
         public void MoveDown(int x, int y)
         {
+            bool moved = false;
             var cell = Cells[x, y];
             if (y == CellsCount - 1)
             {
@@ -254,6 +257,7 @@ namespace _2048Game
                 var value = Cells[x, y].Value;
                 Cells[x, y].Value = 0;
                 Cells[x, y + 1].Value = value * 2;
+                moved = true;
             }
             else
             {
@@ -265,6 +269,7 @@ namespace _2048Game
                         Cells[x, y].Value = 0;
                         Cells[x, y + 1].Value = value;
                         y++;
+                        moved = true;
                     }
                     else
                     {
@@ -273,10 +278,15 @@ namespace _2048Game
                             var value = Cells[x, y].Value;
                             Cells[x, y].Value = 0;
                             Cells[x, y + 1].Value = value * 2;
+                            moved = true;
                         }
                         break;
                     }
                 }
+            }
+            if (moved)
+            {
+                CreateRandomCell();
             }
         }
 
@@ -338,6 +348,27 @@ namespace _2048Game
                     Playground.Children.Add(viewBox);
                 }
             }
+        }
+
+        public void CreateRandomCell()
+        {
+            var rand = new Random();
+            uint value = 2;
+            if(rand.NextDouble()>0.9)
+            {
+                value = 4;
+            }
+            var index = new Random();
+            var emptyCells = new List<Cell>();
+            foreach(var cell in Cells)
+            {
+                if(cell.Value == 0)
+                {
+                    emptyCells.Add(cell);
+                }
+            }
+            var selectedCell = emptyCells[index.Next(emptyCells.Count)];
+            selectedCell.Value = value;
         }
 
         public void UpdateGrid()
