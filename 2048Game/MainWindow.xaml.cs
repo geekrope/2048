@@ -254,7 +254,7 @@ namespace _2048Game
 
             var cellFill = new Rectangle();
 
-            cellFill.Fill = color;
+            cellFill.Fill = GetColor(val);
 
             cellFill.Width = cellWidth;
             cellFill.Height = cellHeight;
@@ -305,9 +305,8 @@ namespace _2048Game
             {
                 Playground.Children.Add(cellFill);
                 Playground.Children.Add(viewBox);
-                timer.Start();
-                Cells[(int)StartPos.X, (int)StartPos.Y].Fill.Fill = ForeColor;
-                ((Label)Cells[(int)StartPos.X, (int)StartPos.Y].Content.Child).Content = "";
+                Console.WriteLine(cellFill.Fill);
+                timer.Start();               
             }            
         }
 
@@ -433,6 +432,15 @@ namespace _2048Game
             }
         }
 
+        public void Clear()
+        {
+            foreach(var cell in Cells)
+            {
+                cell.Fill.Fill = ForeColor;
+                ((Label)cell.Content.Child).Content = "";
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -449,7 +457,7 @@ namespace _2048Game
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Right)
-            {
+            {                
                 for (int x = CellsCount - 1; x >= 0; x--)
                 {
                     for (int y = 0; y < CellsCount; y++)
@@ -460,7 +468,7 @@ namespace _2048Game
                 }
             }
             if (e.Key == Key.Left)
-            {
+            {               
                 for (int x = 0; x < CellsCount; x++)
                 {
                     for (int y = 0; y < CellsCount; y++)
@@ -471,7 +479,7 @@ namespace _2048Game
                 }
             }
             if (e.Key == Key.Up)
-            {
+            {                
                 for (int x = 0; x < CellsCount; x++)
                 {
                     for (int y = 0; y < CellsCount; y++)
@@ -482,7 +490,7 @@ namespace _2048Game
                 }
             }
             if (e.Key == Key.Down)
-            {
+            {               
                 for (int x = 0; x < CellsCount; x++)
                 {
                     for (int y = CellsCount - 1; y >= 0; y--)
