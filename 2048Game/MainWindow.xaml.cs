@@ -313,6 +313,15 @@ namespace _2048Game
                         LockKeyPress = false;
                         UpdateGrid();
                     }
+                    var soltionExists = CheckCells();
+                    if (!soltionExists)
+                    {
+                        Menu.Visibility = Visibility.Visible;
+                        Fill.Visibility = Visibility.Visible;
+                        var animation = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromSeconds(0.2)));
+                        Menu.BeginAnimation(OpacityProperty, animation);
+                        Fill.BeginAnimation(OpacityProperty, animation);
+                    }
                 };
 
                 cellFill.BeginAnimation(LeftProperty, animationX);
@@ -486,6 +495,16 @@ namespace _2048Game
 
         public void Reload()
         {
+            LockKeyPress = true;
+            var animation = new DoubleAnimation(1, 0, new Duration(TimeSpan.FromSeconds(0.2)));
+            animation.Completed += (object sender, EventArgs e) =>
+            {
+                Menu.Visibility = Visibility.Hidden;
+                Fill.Visibility = Visibility.Hidden;
+                LockKeyPress = false;
+            };
+            Menu.BeginAnimation(OpacityProperty, animation);
+            Fill.BeginAnimation(OpacityProperty, animation);            
             Moved = false;
 
             FilledCells = 0;
@@ -494,18 +513,16 @@ namespace _2048Game
 
             AnimatedCells = 0;
 
-            Cells = new Cell[4,4];
+            Cells = new Cell[4, 4];
 
             Playground.Children.Clear();
 
             CreateGrid();
 
-            Cells[0, 2].Value = 2;
+            CreateRandomCell();
+            CreateRandomCell();
 
-            UpdateGrid();
-
-            Menu.Visibility = Visibility.Hidden;
-            Fill.Visibility = Visibility.Hidden;
+            UpdateGrid();            
         }
 
         public bool CheckCells()
@@ -513,26 +530,26 @@ namespace _2048Game
             bool hasEmptyCell = false;
             foreach (var cell in Cells)
             {
-                if(cell.Value == 0)
+                if (cell.Value == 0)
                 {
                     hasEmptyCell = true;
                 }
             }
-            if(hasEmptyCell)
+            if (hasEmptyCell)
             {
                 return true;
             }
             bool hasSolution = false;
-            for (int x = 0; x < CellsCount - 1; x++)
+            for (int x = 0; x < CellsCount; x++)
             {
-                for (int y = 0; y < CellsCount - 1; y++)
+                for (int y = 0; y < CellsCount; y++)
                 {
                     if (x > 0)
                     {
                         if (Cells[x - 1, y].Value == Cells[x, y].Value)
                         {
                             hasSolution = true;
-                        }                        
+                        }
                     }
                     if (y > 0)
                     {
@@ -541,14 +558,14 @@ namespace _2048Game
                             hasSolution = true;
                         }
                     }
-                    if (x< CellsCount - 1)
+                    if (x < CellsCount - 1)
                     {
                         if (Cells[x + 1, y].Value == Cells[x, y].Value)
                         {
                             hasSolution = true;
                         }
                     }
-                    if (y< CellsCount - 1)
+                    if (y < CellsCount - 1)
                     {
                         if (Cells[x, y + 1].Value == Cells[x, y].Value)
                         {
@@ -568,7 +585,8 @@ namespace _2048Game
 
             CreateGrid();
 
-            Cells[0, 2].Value = 2;
+            CreateRandomCell();
+            CreateRandomCell();
 
             UpdateGrid();
         }
@@ -665,12 +683,6 @@ namespace _2048Game
                     Moved = false;
                 }
                 UpdateScore();
-                var soltionExists = CheckCells();
-                if(!soltionExists)
-                {
-                    Menu.Visibility = Visibility.Visible;
-                    Fill.Visibility = Visibility.Visible;
-                }
             }
         }
 
