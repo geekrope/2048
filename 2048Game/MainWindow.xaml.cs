@@ -106,6 +106,10 @@ namespace _2048Game
 
         class Cell
         {
+            public bool Joined
+            {
+                get; set;
+            }
             public Cell(uint value, int x, int y)
             {
                 Value = value;
@@ -183,7 +187,7 @@ namespace _2048Game
                     return;
                 }
             }
-            if (Cells[x + xOffset, y + yOffset].Value == Cells[x, y].Value)
+            if (Cells[x + xOffset, y + yOffset].Value == Cells[x, y].Value && !Cells[x + xOffset, y + yOffset].Joined && !Cells[x, y].Joined && Cells[x, y].Value != 0)
             {
                 var value = Cells[x, y].Value;
                 Cells[x, y].Value = 0;
@@ -191,6 +195,7 @@ namespace _2048Game
                 Score += value * 2;
                 EndPos.X = x + xOffset;
                 EndPos.Y = y + yOffset;
+                Cells[x + xOffset, y + yOffset].Joined = true;
                 if (value > 0)
                 {
                     Moved = true;
@@ -201,11 +206,20 @@ namespace _2048Game
                 bool end = false;
                 for (; !end;)
                 {
-                    if (Cells[x + xOffset, y + yOffset].Value == 0)
+                    if (Cells[x + xOffset, y + yOffset].Value == 0 && Cells[x, y].Value != 0)
                     {
                         var value = Cells[x, y].Value;
                         Cells[x, y].Value = 0;
                         Cells[x + xOffset, y + yOffset].Value = value;
+                        if (Cells[x, y].Joined)
+                        {
+                            Cells[x, y].Joined = false;
+                            Cells[x + xOffset, y + yOffset].Joined = true;
+                        }
+                        if (!Cells[x, y].Joined)
+                        {
+                            Cells[x + xOffset, y + yOffset].Joined = false;
+                        }
                         EndPos.X = x + xOffset;
                         EndPos.Y = y + yOffset;
                         x += xOffset;
@@ -217,7 +231,7 @@ namespace _2048Game
                     }
                     else
                     {
-                        if (Cells[x + xOffset, y + yOffset].Value == Cells[x, y].Value)
+                        if (Cells[x + xOffset, y + yOffset].Value == Cells[x, y].Value && !Cells[x + xOffset, y + yOffset].Joined && !Cells[x, y].Joined && Cells[x, y].Value != 0)
                         {
                             var value = Cells[x, y].Value;
                             Cells[x, y].Value = 0;
@@ -225,6 +239,7 @@ namespace _2048Game
                             Score += value * 2;
                             EndPos.X = x + xOffset;
                             EndPos.Y = y + yOffset;
+                            Cells[x + xOffset, y + yOffset].Joined = true;
                             if (value > 0)
                             {
                                 Moved = true;
@@ -504,7 +519,7 @@ namespace _2048Game
                 LockKeyPress = false;
             };
             Menu.BeginAnimation(OpacityProperty, animation);
-            Fill.BeginAnimation(OpacityProperty, animation);            
+            Fill.BeginAnimation(OpacityProperty, animation);
             Moved = false;
 
             FilledCells = 0;
@@ -522,7 +537,15 @@ namespace _2048Game
             CreateRandomCell();
             CreateRandomCell();
 
-            UpdateGrid();            
+            UpdateGrid();
+        }
+
+        public void ClearCells()
+        {
+            foreach (var cell in Cells)
+            {
+                cell.Joined = false;
+            }
         }
 
         public bool CheckCells()
@@ -599,7 +622,7 @@ namespace _2048Game
                 FilledCells = 0;
                 if (e.Key == Key.Right)
                 {
-                    LockKeyPress = true;
+                    ClearCells();
                     foreach (var cell in Cells)
                     {
                         if (cell.Value != 0 && cell.Position.X < CellsCount - 1)
@@ -607,6 +630,7 @@ namespace _2048Game
                             FilledCells += 1;
                         }
                     }
+                    LockKeyPress = true;
                     for (int x = CellsCount - 1; x >= 0; x--)
                     {
                         for (int y = 0; y < CellsCount; y++)
@@ -619,6 +643,7 @@ namespace _2048Game
                 }
                 if (e.Key == Key.Left)
                 {
+                    ClearCells();
                     foreach (var cell in Cells)
                     {
                         if (cell.Value != 0 && cell.Position.X > 0)
@@ -639,6 +664,7 @@ namespace _2048Game
                 }
                 if (e.Key == Key.Up)
                 {
+                    ClearCells();
                     foreach (var cell in Cells)
                     {
                         if (cell.Value != 0 && cell.Position.Y > 0)
@@ -659,6 +685,7 @@ namespace _2048Game
                 }
                 if (e.Key == Key.Down)
                 {
+                    ClearCells();
                     foreach (var cell in Cells)
                     {
                         if (cell.Value != 0 && cell.Position.Y < CellsCount - 1)
