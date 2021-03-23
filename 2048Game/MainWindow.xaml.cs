@@ -42,6 +42,7 @@ namespace _2048Game
         readonly SolidColorBrush LowValueColor = new SolidColorBrush(Color.FromRgb(119, 110, 101));
         readonly SolidColorBrush HighValueColor = new SolidColorBrush(Color.FromRgb(249, 246, 242));
         const int CellsCount = 4;
+
         uint Score = 0;
 
         bool LockKeyPress = false;
@@ -190,10 +191,10 @@ namespace _2048Game
                 Score += value * 2;
                 EndPos.X = x + xOffset;
                 EndPos.Y = y + yOffset;
-                if(value>0)
+                if (value > 0)
                 {
                     Moved = true;
-                }               
+                }
             }
             else
             {
@@ -248,7 +249,7 @@ namespace _2048Game
                         end = true;
                     }
                 }
-            }            
+            }
 
             var width = CanvasSize.Width - 2 * BlockMargin;
             var height = CanvasSize.Height - 2 * BlockMargin;
@@ -291,7 +292,7 @@ namespace _2048Game
             viewBox.Height = cellHeight;
 
             viewBox.SetValue(LeftProperty, (x2 - x1) * itteration / (double)itterations + x1);
-            viewBox.SetValue(TopProperty, (y2 - y1) * itteration / (double)itterations + y1);            
+            viewBox.SetValue(TopProperty, (y2 - y1) * itteration / (double)itterations + y1);
 
             if (val != 0)
             {
@@ -305,7 +306,7 @@ namespace _2048Game
                 animationX.Completed += (object sender, EventArgs e) =>
                 {
                     Playground.Children.Remove(cellFill);
-                    Playground.Children.Remove(viewBox);                  
+                    Playground.Children.Remove(viewBox);
                     UpdateGrid((int)EndPos.X, (int)EndPos.Y);
                     if (AnimatedCells >= FilledCells)
                     {
@@ -318,7 +319,7 @@ namespace _2048Game
                 cellFill.BeginAnimation(TopProperty, animationY);
 
                 viewBox.BeginAnimation(LeftProperty, animationX);
-                viewBox.BeginAnimation(TopProperty, animationY);                
+                viewBox.BeginAnimation(TopProperty, animationY);
 
                 Cells[(int)StartPos.X, (int)StartPos.Y].Fill.Fill = ForeColor;
                 ((Label)Cells[(int)StartPos.X, (int)StartPos.Y].Content.Child).Content = "";
@@ -483,6 +484,82 @@ namespace _2048Game
             }
         }
 
+        public void Reload()
+        {
+            Moved = false;
+
+            FilledCells = 0;
+
+            Score = 0;
+
+            AnimatedCells = 0;
+
+            Cells = new Cell[4,4];
+
+            Playground.Children.Clear();
+
+            CreateGrid();
+
+            Cells[0, 2].Value = 2;
+
+            UpdateGrid();
+
+            Menu.Visibility = Visibility.Hidden;
+            Fill.Visibility = Visibility.Hidden;
+        }
+
+        public bool CheckCells()
+        {
+            bool hasEmptyCell = false;
+            foreach (var cell in Cells)
+            {
+                if(cell.Value == 0)
+                {
+                    hasEmptyCell = true;
+                }
+            }
+            if(hasEmptyCell)
+            {
+                return true;
+            }
+            bool hasSolution = false;
+            for (int x = 0; x < CellsCount - 1; x++)
+            {
+                for (int y = 0; y < CellsCount - 1; y++)
+                {
+                    if (x > 0)
+                    {
+                        if (Cells[x - 1, y].Value == Cells[x, y].Value)
+                        {
+                            hasSolution = true;
+                        }                        
+                    }
+                    if (y > 0)
+                    {
+                        if (Cells[x, y - 1].Value == Cells[x, y].Value)
+                        {
+                            hasSolution = true;
+                        }
+                    }
+                    if (x< CellsCount - 1)
+                    {
+                        if (Cells[x + 1, y].Value == Cells[x, y].Value)
+                        {
+                            hasSolution = true;
+                        }
+                    }
+                    if (y< CellsCount - 1)
+                    {
+                        if (Cells[x, y + 1].Value == Cells[x, y].Value)
+                        {
+                            hasSolution = true;
+                        }
+                    }
+                }
+            }
+            return hasSolution;
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -588,7 +665,18 @@ namespace _2048Game
                     Moved = false;
                 }
                 UpdateScore();
+                var soltionExists = CheckCells();
+                if(!soltionExists)
+                {
+                    Menu.Visibility = Visibility.Visible;
+                    Fill.Visibility = Visibility.Visible;
+                }
             }
+        }
+
+        private void Retry_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Reload();
         }
     }
 }
