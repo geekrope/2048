@@ -252,7 +252,7 @@ namespace _2048Game
             var y2 = EndPos.Y * cellWidth + BlockMargin * (EndPos.Y + 1);
 
             var itteration = 0;
-            var itterations = 8;
+            var itterations = 13;
 
             var cellFill = new Rectangle();
 
@@ -486,6 +486,7 @@ namespace _2048Game
                             Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Right);
                         }
                     }
+                    Console.WriteLine("Right");
                 }
                 if (e.Key == Key.Left)
                 {
@@ -505,6 +506,7 @@ namespace _2048Game
                             Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Left);
                         }
                     }
+                    Console.WriteLine("Left");
                 }
                 if (e.Key == Key.Up)
                 {
@@ -524,6 +526,7 @@ namespace _2048Game
                             Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Up);
                         }
                     }
+                    Console.WriteLine("Up");
                 }
                 if (e.Key == Key.Down)
                 {
@@ -543,12 +546,13 @@ namespace _2048Game
                             Move((int)cell.Position.X, (int)cell.Position.Y, Direction.Down);
                         }
                     }
+                    Console.WriteLine("Down");
                 }
                 if (Moved)
                 {
                     CreateRandomCell();
                     Moved = false;
-                }
+                }               
             }            
         }
     }
