@@ -6,9 +6,23 @@
         xmlns:local="clr-namespace:_2048Game"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" KeyDown="Window_KeyDown">
-    <Grid>        
-        <Viewbox>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="4*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Viewbox Grid.ColumnSpan="1" Grid.RowSpan="1" Grid.Row="1" Grid.Column="1">
             <Canvas Name="Playground"/>
+        </Viewbox>
+        <Viewbox Grid.ColumnSpan="1" Grid.RowSpan="1" Grid.Row="0" Grid.Column="1">
+            <Label FontFamily="Arial" Foreground="#FF776E65" Name="ScoreLabel"/>
         </Viewbox>
     </Grid>
 </Window>

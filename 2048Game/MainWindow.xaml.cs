@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Windows.Media.Animation;
 
 namespace _2048Game
 {
@@ -41,6 +42,7 @@ namespace _2048Game
         readonly SolidColorBrush LowValueColor = new SolidColorBrush(Color.FromRgb(119, 110, 101));
         readonly SolidColorBrush HighValueColor = new SolidColorBrush(Color.FromRgb(249, 246, 242));
         const int CellsCount = 4;
+        uint Score = 0;
 
         bool LockKeyPress = false;
 
@@ -185,9 +187,13 @@ namespace _2048Game
                 var value = Cells[x, y].Value;
                 Cells[x, y].Value = 0;
                 Cells[x + xOffset, y + yOffset].Value = value * 2;
+                Score += value * 2;
                 EndPos.X = x + xOffset;
                 EndPos.Y = y + yOffset;
-                Moved = true;
+                if(value>0)
+                {
+                    Moved = true;
+                }               
             }
             else
             {
@@ -202,8 +208,11 @@ namespace _2048Game
                         EndPos.X = x + xOffset;
                         EndPos.Y = y + yOffset;
                         x += xOffset;
-                        y += yOffset;                       
-                        Moved = true;
+                        y += yOffset;
+                        if (value > 0)
+                        {
+                            Moved = true;
+                        };
                     }
                     else
                     {
@@ -212,9 +221,13 @@ namespace _2048Game
                             var value = Cells[x, y].Value;
                             Cells[x, y].Value = 0;
                             Cells[x + xOffset, y + yOffset].Value = value * 2;
+                            Score += value * 2;
                             EndPos.X = x + xOffset;
                             EndPos.Y = y + yOffset;
-                            Moved = true;
+                            if (value > 0)
+                            {
+                                Moved = true;
+                            }
                         }
                         break;
                     }
@@ -235,9 +248,7 @@ namespace _2048Game
                         end = true;
                     }
                 }
-            }
-            var timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(10);
+            }            
 
             var width = CanvasSize.Width - 2 * BlockMargin;
             var height = CanvasSize.Height - 2 * BlockMargin;
@@ -252,7 +263,7 @@ namespace _2048Game
             var y2 = EndPos.Y * cellWidth + BlockMargin * (EndPos.Y + 1);
 
             var itteration = 0;
-            var itterations = 13;
+            var itterations = 10;
 
             var cellFill = new Rectangle();
 
@@ -265,7 +276,7 @@ namespace _2048Game
             cellFill.SetValue(TopProperty, (y2 - y1) * itteration / (double)itterations + y1);
 
             cellFill.RadiusX = BorderRadius;
-            cellFill.RadiusY = BorderRadius;                       
+            cellFill.RadiusY = BorderRadius;
 
             var label = new Label();
             label.Content = val.ToString();
@@ -280,42 +291,43 @@ namespace _2048Game
             viewBox.Height = cellHeight;
 
             viewBox.SetValue(LeftProperty, (x2 - x1) * itteration / (double)itterations + x1);
-            viewBox.SetValue(TopProperty, (y2 - y1) * itteration / (double)itterations + y1);
+            viewBox.SetValue(TopProperty, (y2 - y1) * itteration / (double)itterations + y1);            
 
-            timer.Tick += (object sender, EventArgs e) =>
-            {
-                var newX = (x2 - x1) * itteration / (double)itterations + x1;
-                var newY = (y2 - y1) * itteration / (double)itterations + y1;
-
-                cellFill.SetValue(LeftProperty, newX);
-                cellFill.SetValue(TopProperty, newY);
-                viewBox.SetValue(LeftProperty, newX);
-                viewBox.SetValue(TopProperty, newY);
-
-                if (itteration >= itterations)
-                {                   
-                    Playground.Children.Remove(cellFill);
-                    Playground.Children.Remove(viewBox);
-                    timer.Stop();
-                    UpdateGrid();
-                    if(AnimatedCells >= FilledCells)
-                    {
-                        LockKeyPress = false;
-                    }
-                }
-
-                itteration++;
-            };            
-
-            if(val!=0)
+            if (val != 0)
             {
                 AnimatedCells++;
                 Playground.Children.Add(cellFill);
-                Playground.Children.Add(viewBox);                
-                timer.Start();
+                Playground.Children.Add(viewBox);
+
+                var animationX = new DoubleAnimation(x1, x2, new Duration(TimeSpan.FromSeconds(0.2)));
+                var animationY = new DoubleAnimation(y1, y2, new Duration(TimeSpan.FromSeconds(0.2)));
+
+                animationX.Completed += (object sender, EventArgs e) =>
+                {
+                    Playground.Children.Remove(cellFill);
+                    Playground.Children.Remove(viewBox);                  
+                    UpdateGrid((int)EndPos.X, (int)EndPos.Y);
+                    if (AnimatedCells >= FilledCells)
+                    {
+                        LockKeyPress = false;
+                        UpdateGrid();
+                    }
+                };
+
+                cellFill.BeginAnimation(LeftProperty, animationX);
+                cellFill.BeginAnimation(TopProperty, animationY);
+
+                viewBox.BeginAnimation(LeftProperty, animationX);
+                viewBox.BeginAnimation(TopProperty, animationY);                
+
                 Cells[(int)StartPos.X, (int)StartPos.Y].Fill.Fill = ForeColor;
                 ((Label)Cells[(int)StartPos.X, (int)StartPos.Y].Content.Child).Content = "";
-            }            
+            }
+        }
+
+        public void UpdateScore()
+        {
+            ScoreLabel.Content = Score.ToString();
         }
 
         public void CreateGrid()
@@ -440,9 +452,31 @@ namespace _2048Game
             }
         }
 
+        public void UpdateGrid(int x, int y)
+        {
+            var cell = Cells[x, y];
+            cell.Fill.Fill = GetColor(cell.Value);
+            if (cell.Value != 0)
+            {
+                ((Label)cell.Content.Child).Content = cell.Value.ToString();
+                if (cell.Value < 8)
+                {
+                    ((Label)cell.Content.Child).Foreground = LowValueColor;
+                }
+                else
+                {
+                    ((Label)cell.Content.Child).Foreground = HighValueColor;
+                }
+            }
+            else
+            {
+                ((Label)cell.Content.Child).Content = "";
+            }
+        }
+
         public void Clear()
         {
-            foreach(var cell in Cells)
+            foreach (var cell in Cells)
             {
                 cell.Fill.Fill = ForeColor;
                 ((Label)cell.Content.Child).Content = "";
@@ -456,24 +490,24 @@ namespace _2048Game
             Playground.Height = CanvasSize.Height;
 
             CreateGrid();
-           
-            Cells[0, 2].Value = 2;      
-            
+
+            Cells[0, 2].Value = 2;
+
             UpdateGrid();
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if(!LockKeyPress)
+            if (!LockKeyPress)
             {
                 AnimatedCells = 0;
-                FilledCells = 0;                
+                FilledCells = 0;
                 if (e.Key == Key.Right)
                 {
                     LockKeyPress = true;
                     foreach (var cell in Cells)
                     {
-                        if (cell.Value != 0&&cell.Position.X<CellsCount-1)
+                        if (cell.Value != 0 && cell.Position.X < CellsCount - 1)
                         {
                             FilledCells += 1;
                         }
@@ -492,7 +526,7 @@ namespace _2048Game
                 {
                     foreach (var cell in Cells)
                     {
-                        if (cell.Value != 0 && cell.Position.X >0)
+                        if (cell.Value != 0 && cell.Position.X > 0)
                         {
                             FilledCells += 1;
                         }
@@ -532,7 +566,7 @@ namespace _2048Game
                 {
                     foreach (var cell in Cells)
                     {
-                        if (cell.Value != 0 && cell.Position.Y<CellsCount-1)
+                        if (cell.Value != 0 && cell.Position.Y < CellsCount - 1)
                         {
                             FilledCells += 1;
                         }
@@ -552,8 +586,9 @@ namespace _2048Game
                 {
                     CreateRandomCell();
                     Moved = false;
-                }               
-            }            
+                }
+                UpdateScore();
+            }
         }
     }
 }
