@@ -331,11 +331,26 @@ namespace _2048Game
                     var soltionExists = CheckCells();
                     if (!soltionExists)
                     {
+                        LockKeyPress = true;
                         Menu.Visibility = Visibility.Visible;
                         Fill.Visibility = Visibility.Visible;
+                        MenuMessage.Content = "Game over";
                         var animation = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromSeconds(0.2)));
                         Menu.BeginAnimation(OpacityProperty, animation);
                         Fill.BeginAnimation(OpacityProperty, animation);
+                    }
+                    foreach(var cell in Cells)
+                    {
+                        if(cell.Value==2048)
+                        {
+                            LockKeyPress = true;
+                            Menu.Visibility = Visibility.Visible;
+                            Fill.Visibility = Visibility.Visible;
+                            MenuMessage.Content = "You win";
+                            var animation = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromSeconds(0.2)));
+                            Menu.BeginAnimation(OpacityProperty, animation);
+                            Fill.BeginAnimation(OpacityProperty, animation);
+                        }
                     }
                 };
 
